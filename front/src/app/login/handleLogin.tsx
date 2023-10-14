@@ -6,7 +6,7 @@ export async function handleLogin(
   login: string,
   password: string,
 ): Promise<string> {
-  const response = await fetch(`${process.env.SERVER_URL}/login`, {
+  const response = await fetch(`${process.env.SERVER_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
