@@ -21,8 +21,9 @@ func main() {
 		fmt.Fprint(w, "Root page, have no any protection")
 	})
 
-  http.HandleFunc("/signup", deps.Signup)
-  http.HandleFunc("/login", deps.Login)
+  http.HandleFunc("/auth/signup", deps.Signup)
+  http.HandleFunc("/auth/login", deps.Login)
+  http.HandleFunc("/auth/validate", deps.ValidateSession)
 
   err := http.ListenAndServe(":6969", nil)
 	if err != nil {
