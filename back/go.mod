@@ -2,8 +2,11 @@ module back
 
 go 1.21.1
 
+require github.com/gorilla/sessions v1.2.1
+
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230512164433-5d1fd1a340c9 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/klauspost/compress v1.15.15 // indirect
 	github.com/libsql/libsql-client-go v0.0.0-20231009080222-ee74a605841b // indirect
 	github.com/libsql/sqlite-antlr4-parser v0.0.0-20230802215326-5cb5bb604475 // indirect

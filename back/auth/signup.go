@@ -37,26 +37,35 @@ func (app *HandlerDependencies) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hashedPassword, err := hashing.HashPassword(signupBody.Password)
-
 	if err != nil {
-    http.Error(w, err.Error(), http.StatusInternalServerError)
-    log.Println(err)
-    return
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		return
 	}
 
 	query, err := app.DB.Exec("insert into user (login, password) values (?, ?)", signupBody.Login, hashedPassword)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	userId, err := query.LastInsertId()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	session, err := hashing.GetStore().Get(r, "session")
   if err != nil {
     http.Error(w, err.Error(), http.StatusInternalServerError)
     log.Println(err)
     return
   }
 
-  _, err = query.LastInsertId()
-  if err != nil {
-    http.Error(w, err.Error(), http.StatusInternalServerError)
-    log.Println(err)
-    return
-  }
+	session.Values["userId"] = userId
+	session.Save(r, w)
 
-  fmt.Fprintf(w, "User %s created", signupBody.Login)
+	fmt.Fprintf(w, "User %s created", signupBody.Login)
 }
