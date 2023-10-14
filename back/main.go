@@ -22,6 +22,7 @@ func main() {
 	})
 
   http.HandleFunc("/signup", deps.Signup)
+  http.HandleFunc("/login", deps.Login)
 
   err := http.ListenAndServe(":6969", nil)
 	if err != nil {
