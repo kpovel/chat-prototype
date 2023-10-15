@@ -8,20 +8,24 @@ export async function validateSession() {
     redirect("/");
   }
 
-  const response = await fetch(`${process.env.SERVER_URL}/auth/validate`, {
-    cache: "no-store",
-    headers: {
-      "Cookie": `session=${session.value}`,
-    },
-  });
+  try {
+    const response = await fetch(`${process.env.SERVER_URL}/auth/validate`, {
+      cache: "no-store",
+      headers: {
+        Cookie: `session=${session.value}`,
+      },
+    });
 
-  if (!response.ok) {
-    const text = await response.text();
-    console.log(text);
-    cookies().delete("session");
+    if (!response.ok) {
+      const text = await response.text();
+      console.log(text);
+      cookies().delete("session");
+      redirect("/");
+    }
+
+    return response.text();
+  } catch (e) {
+    console.log("Error deeznuts:", e);
     redirect("/");
   }
-
-  return response.text();
 }
-

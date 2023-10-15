@@ -1,22 +1,13 @@
-"use client";
-
-import { useEffect, useState } from "react";
+"use server";
 import { validateSession } from "./actions";
 
-export default function Chat() {
-  const [validationResult, setValidationResult] = useState("");
-
-  useEffect(() => {
-    (async () => {
-      const validationResult = await validateSession();
-      setValidationResult(validationResult);
-    })();
-  }, []);
+export default async function Chat() {
+  await validateSession();
 
   return (
     <main>
       <h2>Chat page</h2>
-      <div>Session validation result: {validationResult}</div>
+      <div>Your session is verified</div>
     </main>
   );
 }
