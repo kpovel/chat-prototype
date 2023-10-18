@@ -1,10 +1,6 @@
 "use server";
 import { promises as fs } from "fs";
 import Link from "next/link";
-import { SetPreferredLanguage } from "./SetPreferredLanguage";
-
-// todo: multi language stuff
-// should I do this in layout.tsx?
 
 export async function generateStaticParams() {
   return [{ lang: "en" }, { lang: "uk" }];
@@ -23,7 +19,6 @@ export default async function Home({ params }: { params: { lang: string } }) {
 
   return (
     <main>
-      <SetPreferredLanguage lang={params.lang} />
       <h2>{content.pageHeader}</h2>
       <div className="flex gap-4">
         <Link
