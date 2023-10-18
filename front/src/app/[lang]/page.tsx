@@ -1,5 +1,7 @@
+"use server";
 import { promises as fs } from "fs";
 import Link from "next/link";
+import { SetPreferredLanguage } from "./SetPreferredLanguage";
 
 // todo: multi language stuff
 // should I do this in layout.tsx?
@@ -21,12 +23,19 @@ export default async function Home({ params }: { params: { lang: string } }) {
 
   return (
     <main>
+      <SetPreferredLanguage lang={params.lang} />
       <h2>{content.pageHeader}</h2>
       <div className="flex gap-4">
-        <Link href={`/${params.lang}/login`} className="p-1 px-3 border rounded-xl bg-gray-400">
+        <Link
+          href={`/${params.lang}/login`}
+          className="p-1 px-3 border rounded-xl bg-gray-400"
+        >
           {content.login}
         </Link>
-        <Link href={`/${params.lang}/signup`} className="p-1 px-3 border rounded-xl bg-gray-400">
+        <Link
+          href={`/${params.lang}/signup`}
+          className="p-1 px-3 border rounded-xl bg-gray-400"
+        >
           {content.signup}
         </Link>
       </div>
