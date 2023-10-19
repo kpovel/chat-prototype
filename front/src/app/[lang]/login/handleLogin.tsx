@@ -26,7 +26,8 @@ export async function handleLogin(
       maxAge: 86400 * 30,
     });
 
-    redirect("/chat");
+    const lang = cookies().get("lang")!.value;
+    redirect(`/${lang}/chat`);
   }
 
   return response.text();
