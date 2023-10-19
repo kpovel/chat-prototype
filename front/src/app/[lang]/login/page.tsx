@@ -1,19 +1,11 @@
 import Link from "next/link";
 import { LoginForm } from "./loginForm";
-import { promises as fs } from "fs";
 import { cookies } from "next/headers";
-
-async function pageContent(lang: string) {
-  const fileContent = await fs.readFile(
-    `${process.cwd()}/src/app/[lang]/login/${lang}.json`,
-    "utf8",
-  );
-  return JSON.parse(fileContent);
-}
+import { getDictionary } from "../dictionaries";
 
 export default async function Login() {
   const lang = cookies().get("lang")!.value;
-  const content = await pageContent(lang);
+  const content = await getDictionary(`/login/${lang}`);
 
   return (
     <main>

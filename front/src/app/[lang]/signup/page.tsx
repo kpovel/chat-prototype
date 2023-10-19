@@ -1,19 +1,11 @@
 import Link from "next/link";
 import { SignupForm } from "./signupForm";
 import { cookies } from "next/headers";
-import {promises as fs} from "fs";
-
-async function pageContent(lang: string) {
-  const fileContent = await fs.readFile(
-    `${process.cwd()}/src/app/[lang]/signup/${lang}.json`,
-    "utf8",
-  );
-  return JSON.parse(fileContent);
-}
+import { getDictionary } from "../dictionaries";
 
 export default async function Signup() {
   const lang = cookies().get("lang")!.value;
-  const content = await pageContent(lang);
+  const content = await getDictionary(`/signup/${lang}`);
 
   return (
     <main>

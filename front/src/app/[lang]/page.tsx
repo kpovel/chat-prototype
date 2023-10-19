@@ -1,21 +1,9 @@
 "use server";
-import { promises as fs } from "fs";
 import Link from "next/link";
-
-export async function generateStaticParams() {
-  return [{ lang: "en" }, { lang: "uk" }];
-}
-
-async function pageContent(lang: string) {
-  const fileContent = await fs.readFile(
-    `${process.cwd()}/src/app/[lang]/${lang}.json`,
-    "utf8",
-  );
-  return JSON.parse(fileContent);
-}
+import { getDictionary } from "./dictionaries";
 
 export default async function Home({ params }: { params: { lang: string } }) {
-  const content = await pageContent(params.lang);
+  const content = await getDictionary(`/${params.lang}`);
 
   return (
     <main>
