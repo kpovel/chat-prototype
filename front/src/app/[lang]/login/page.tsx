@@ -1,15 +1,28 @@
 import Link from "next/link";
 import { LoginForm } from "./loginForm";
+import { promises as fs } from "fs";
+import { cookies } from "next/headers";
 
-export default function Login() {
+async function pageContent(lang: string) {
+  const fileContent = await fs.readFile(
+    `${process.cwd()}/src/app/[lang]/login/${lang}.json`,
+    "utf8",
+  );
+  return JSON.parse(fileContent);
+}
+
+export default async function Login() {
+  const lang = cookies().get("lang")!.value;
+  const content = await pageContent(lang);
+
   return (
     <main>
-      <h2>Login page</h2>
+      <h2>{content.pageHeader}</h2>
       <LoginForm />
       <div>
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-purple-500">
-          Signup instead
+        {content.dontHaveAccount}{" "}
+        <Link href={`/${lang}/signup`} className="text-purple-500">
+          {content.instead}
         </Link>
       </div>
     </main>
