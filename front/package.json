@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "rsync -av --include='*.json' --include='*/' --exclude='*' 'src/' 'src/' && next build",
+    "prebuild": "node copy-json.js",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
