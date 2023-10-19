@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "postinstall": "cp -r src/app/*.json .next/server/pages/app/",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
