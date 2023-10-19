@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "postinstall": "cp -r src/app/*.json .next/server/pages/app/",
-    "build": "next build",
+    "build": "rsync -av --include='*.json' --include='*/' --exclude='*' 'src/' 'src/' && next build",
     "start": "next start",
     "lint": "next lint"
   },
