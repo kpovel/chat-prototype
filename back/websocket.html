@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Client</title>
+  </head>
+  <body>
+    <form id="form">
+      <input type="text" name="message">
+      <button type="submit">Send Message</button>
+    </form>
+
+    <pre id="output"></pre>
+
+    <script type="text/javascript">
+      const output = document.getElementById("output");
+      const ws = new WebSocket("ws://localhost:6969/ws/chat");
+
+      ws.onopen = function (e) {
+        console.log("Connection is open ...");
+        ws.send("Hello, server!");
+      };
+
+      ws.onmessage = function (e) {
+        output.innerHTML += `Received: ${e.data}\n`;
+        console.log("Received:", e.data);
+      };
+
+      ws.onclose = function (e) {
+        console.log("Connection is closed ...", e.reason);
+      };
+
+      ws.onerror = function (err) {
+        console.error("Error occurred:", err.message);
+      };
+
+      document.getElementById("form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const inputValue = e.target[0].value;
+        ws.send(inputValue);
+        console.log("Sent:", inputValue);
+      })
+    </script>
+  </body>
+</html>
