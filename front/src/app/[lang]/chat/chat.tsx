@@ -39,6 +39,7 @@ export function Chat({ wsPath }: { wsPath: string }) {
   function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
     ws.send(message);
+    setMessage("");
   }
 
   return (
