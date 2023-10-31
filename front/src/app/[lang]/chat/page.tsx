@@ -5,19 +5,20 @@ import { Chat } from "./chat";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Chat page',
-  }
+    title: "Chat page",
+  };
 }
 
 export default async function Page() {
   await validateSession();
+  const wsPath = `ws://${new URL(process.env.SERVER_URL!).host}/ws/chat`;
 
   // todo: load chat history
 
   return (
     <main className="container mx-auto">
       <h2 className="text-2xl">Chat page</h2>
-      <Chat />
+      <Chat wsPath={wsPath} />
     </main>
   );
 }
