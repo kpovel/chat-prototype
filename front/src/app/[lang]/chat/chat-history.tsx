@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect } from "react";
+import { useEffect } from "react";
 import { Message } from "./message";
 
 export const ChatHistory = function ChatHistory({
@@ -10,7 +10,7 @@ export const ChatHistory = function ChatHistory({
 }) {
   useEffect(() => {
     document.getElementById("message-end")!.scrollIntoView();
-  }, []);
+  }, [history]);
 
   return (
     <div className="flex flex-col gap-2 py-3 my-auto overflow-y-scroll h-full">
