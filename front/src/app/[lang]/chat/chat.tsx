@@ -43,8 +43,8 @@ export function Chat({ wsPath }: { wsPath: string }) {
   }
 
   return (
-    <div className="p-3 h-[80vh] min-h-96 w-96 border rounded-lg flex flex-col gap-3">
-      <div className="border rounded-lg h-full p-3">
+    <div className="p-3 h-[80vh] min-h-96 w-96 border rounded-lg flex flex-col justify-between">
+      <div className="border rounded-lg grow p-3 basis-full max-h-[calc(80vh-12px*7)]">
         <ChatHistory history={history} />
       </div>
       <form
