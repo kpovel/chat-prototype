@@ -1,13 +1,23 @@
 "use server";
+import { Metadata } from "next";
 import { validateSession } from "./actions";
+import { Chat } from "./chat";
 
-export default async function Chat() {
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'Chat page',
+  }
+}
+
+export default async function Page() {
   await validateSession();
 
+  // todo: load chat history
+
   return (
-    <main>
-      <h2>Chat page</h2>
-      <div>Your session is verified</div>
+    <main className="container mx-auto">
+      <h2 className="text-2xl">Chat page</h2>
+      <Chat />
     </main>
   );
 }
