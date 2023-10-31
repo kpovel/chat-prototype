@@ -3,6 +3,7 @@ package chat
 import (
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -13,6 +14,12 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
+var (
+	clients   = make(map[*websocket.Conn]bool)
+	broadcast = make(chan []byte)
+	mu        sync.Mutex
+)
+
 func Chat(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -20,10 +27,13 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer conn.Close()
+	defer remoteClient(conn)
+	mu.Lock()
+	clients[conn] = true
+	mu.Unlock()
 
 	for {
-		messageType, message, err := conn.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(w, err)
 			return
@@ -31,10 +41,29 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 
 		log.Printf("Received: %s\n", message)
 
-		err = conn.WriteMessage(messageType, message)
-		if err != nil {
-			log.Println(w, err)
-			return
-		}
+		broadcast <- message
 	}
+}
+
+func HandleBroadcast() {
+	for {
+		message := <-broadcast
+		mu.Lock()
+		for client := range clients {
+			err := client.WriteMessage(websocket.TextMessage, message)
+			if err != nil {
+				log.Println(err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
+		mu.Unlock()
+	}
+}
+
+func remoteClient(conn *websocket.Conn) {
+	mu.Lock()
+	delete(clients, conn)
+	mu.Unlock()
+	conn.Close()
 }
