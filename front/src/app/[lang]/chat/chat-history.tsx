@@ -2,11 +2,12 @@
 
 import { useEffect } from "react";
 import { Message } from "./message";
+import { MessageResponse } from "./chat";
 
 export const ChatHistory = function ChatHistory({
   history,
 }: {
-  history: { message: string; sentAt: string; author: string }[];
+  history: MessageResponse[];
 }) {
   useEffect(() => {
     document.getElementById("message-end")!.scrollIntoView();
@@ -17,10 +18,8 @@ export const ChatHistory = function ChatHistory({
       {history.map((m) => {
         return (
           <Message
-            key={m.sentAt}
-            message={m.message}
-            author={m.author}
-            sentAt={m.sentAt}
+            key={m.messageId}
+            message={m}
           />
         );
       })}

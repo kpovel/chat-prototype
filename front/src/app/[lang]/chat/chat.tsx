@@ -2,12 +2,18 @@
 
 import { SyntheticEvent, useMemo, useState } from "react";
 import { ChatHistory } from "./chat-history";
+import { getCookie } from "./get-cookie";
+
+export type MessageResponse = {
+  sendBy: string;
+  sentAt: string;
+  messageId: number;
+  message: string;
+};
 
 export function Chat({ wsPath }: { wsPath: string }) {
   const [message, setMessage] = useState("");
-  const [history, setHistory] = useState<
-    { message: string; sentAt: string; author: string }[]
-  >([]);
+  const [history, setHistory] = useState<MessageResponse[]>([]);
   // todo: load chat history
 
   const ws = useMemo(() => {
@@ -20,25 +26,21 @@ export function Chat({ wsPath }: { wsPath: string }) {
       console.log("WebSocket Closed:", event);
     };
 
-    ws.onmessage = function (e) {
+    ws.onmessage = function (e: MessageEvent<string>) {
+      const json = JSON.parse(e.data) as MessageResponse;
       setHistory((p) => {
-        return [
-          ...p,
-          {
-            message: e.data,
-            sentAt: new Date().toDateString(),
-            author: "author1",
-          },
-        ];
+        return [...p, json];
       });
     };
 
     return ws;
   }, [wsPath]);
 
-  function handleSubmit(e: SyntheticEvent) {
+  async function handleSubmit(e: SyntheticEvent) {
     e.preventDefault();
-    ws.send(message);
+    const token = await getCookie("session");
+
+    ws.send(JSON.stringify({ session: token?.value, message }));
     setMessage("");
   }
 
