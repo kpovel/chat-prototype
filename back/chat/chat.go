@@ -1,6 +1,10 @@
 package chat
 
 import (
+	"back/hashing"
+	"database/sql"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -20,7 +24,12 @@ var (
 	mu        sync.Mutex
 )
 
-func Chat(w http.ResponseWriter, r *http.Request) {
+type MessageBody struct {
+	Message string `json:"message"`
+	Session string `json:"session"`
+}
+
+func Chat(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(w, err)
@@ -33,15 +42,57 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 	mu.Unlock()
 
 	for {
-		_, message, err := conn.ReadMessage()
+		_, messageBody, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(w, err)
 			return
 		}
 
-		log.Printf("Received: %s\n", message)
+		var encodedBody MessageBody
+		if err := json.Unmarshal(messageBody, &encodedBody); err != nil {
+			log.Println(err)
+			return
+		}
 
-		broadcast <- message
+		r.Header.Set("Cookie", fmt.Sprintf("session=%s", encodedBody.Session))
+		session, err := hashing.GetStore().Get(r, "session")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		userId := session.Values["userId"]
+		stmt, err := DB.Exec("insert into chat (message, user_id) values (?, ?)", encodedBody.Message, userId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		userLogin, err := DB.Query("select login from user where id = ?", userId)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		defer userLogin.Close()
+
+		var login string
+		for userLogin.Next() {
+			err := userLogin.Scan(&login)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+		}
+
+		id, err := stmt.LastInsertId()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		log.Printf("Received: %s\n", encodedBody.Message)
+
+		broadcast <- []byte(fmt.Sprintf(`{"sendBy": "%s", "messageId": %d, "message": "%s"}`, login, id, encodedBody.Message))
 	}
 }
 

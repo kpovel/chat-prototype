@@ -24,7 +24,9 @@ func main() {
 	http.HandleFunc("/auth/signup", deps.Signup)
 	http.HandleFunc("/auth/login", deps.Login)
 	http.HandleFunc("/auth/validate", deps.ValidateSession)
-	http.HandleFunc("/ws/chat", chat.Chat)
+	http.HandleFunc("/ws/chat", func(w http.ResponseWriter, r *http.Request) {
+    chat.Chat(w, r, deps.DB)
+  })
 	go chat.HandleBroadcast()
 	http.HandleFunc("/websocket.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "websocket.html")
