@@ -62,10 +62,21 @@ func Chat(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
 		}
 
 		userId := session.Values["userId"]
-		stmt, err := DB.Exec("insert into chat (message, user_id) values (?, ?)", encodedBody.Message, userId)
+		messageRows, err := DB.Query("insert into chat (message, user_id) values (?, ?) returning id as messageId, sent_at as sentAt", encodedBody.Message, userId)
 		if err != nil {
 			log.Println(err)
 			return
+		}
+		defer messageRows.Close()
+
+		var messageId int
+		var sentAt string
+
+		for messageRows.Next() {
+			if err := messageRows.Scan(&messageId, &sentAt); err != nil {
+				log.Println(err)
+				return
+			}
 		}
 
 		userLogin, err := DB.Query("select login from user where id = ?", userId)
@@ -84,15 +95,9 @@ func Chat(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
 			}
 		}
 
-		id, err := stmt.LastInsertId()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
 		log.Printf("Received: %s\n", encodedBody.Message)
 
-		broadcast <- []byte(fmt.Sprintf(`{"sendBy": "%s", "messageId": %d, "message": "%s"}`, login, id, encodedBody.Message))
+		broadcast <- []byte(fmt.Sprintf(`{"sendBy": "%s", "messageId": %d, "sentAt": %s, "message": "%s"}`, login, messageId, sentAt, encodedBody.Message))
 	}
 }
 
