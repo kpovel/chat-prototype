@@ -27,6 +27,10 @@ func main() {
 	http.HandleFunc("/ws/chat", func(w http.ResponseWriter, r *http.Request) {
     chat.Chat(w, r, deps.DB)
   })
+  http.HandleFunc("/chat/history", func(w http.ResponseWriter, r *http.Request) {
+    chat.History(w, r, deps.DB)
+  })
+
 	go chat.HandleBroadcast()
 	http.HandleFunc("/websocket.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "websocket.html")
