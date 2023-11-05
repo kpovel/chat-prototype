@@ -3,16 +3,16 @@ package chat
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"sort"
 )
 
 type message struct {
-	ID      uint
-	Message string
-	Login   string
+	MessageId uint
+	Message   string
+	SentBy    string
+	SentAt    string
 }
 
 func History(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
@@ -21,11 +21,11 @@ func History(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
 		return
 	}
 
-	historyQuery, err := DB.Query(`select chat.id, message, login
+	historyQuery, err := DB.Query(`select chat.id as messageId, message, login as sentBy, sent_at as setnAt
   from chat inner
   join user on chat.user_id = user.id
   order by chat.id desc
-  limit 10;`)
+  limit 100;`)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Failed to history", http.StatusInternalServerError)
@@ -36,7 +36,7 @@ func History(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
 	var history []message
 	for historyQuery.Next() {
 		var msg message
-		err := historyQuery.Scan(&msg.ID, &msg.Message, &msg.Login)
+		err := historyQuery.Scan(&msg.MessageId, &msg.Message, &msg.SentBy, &msg.SentAt)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "Failed to parse history", http.StatusInternalServerError)
@@ -46,7 +46,7 @@ func History(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
 	}
 
 	sort.Slice(history, func(i, j int) bool {
-		return history[i].ID < history[j].ID
+		return history[i].MessageId < history[j].MessageId
 	})
 
 	w.Header().Set("Content-Type", "application/json")

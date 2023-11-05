@@ -97,7 +97,7 @@ func Chat(w http.ResponseWriter, r *http.Request, DB *sql.DB) {
 
 		log.Printf("Received: %s\n", encodedBody.Message)
 
-		broadcast <- []byte(fmt.Sprintf(`{"sendBy": "%s", "messageId": %d, "sentAt": "%s", "message": "%s"}`, login, messageId, sentAt, encodedBody.Message))
+		broadcast <- []byte(fmt.Sprintf(`{"MessageId": %d, "SentBy": "%s", "SentAt": "%s", "Message": "%s"}`, messageId, login, sentAt, encodedBody.Message))
 	}
 }
 
