@@ -3,18 +3,17 @@
 import { SyntheticEvent, useMemo, useState } from "react";
 import { ChatHistory } from "./chat-history";
 import { getCookie } from "./get-cookie";
+import { Message } from "./page";
 
-export type MessageResponse = {
-  sendBy: string;
-  sentAt: string;
-  messageId: number;
-  message: string;
-};
-
-export function Chat({ wsPath }: { wsPath: string }) {
+export function Chat({
+  wsPath,
+  chatHistory,
+}: {
+  wsPath: string;
+  chatHistory: Message[];
+}) {
   const [message, setMessage] = useState("");
-  const [history, setHistory] = useState<MessageResponse[]>([]);
-  // todo: load chat history
+  const [history, setHistory] = useState<Message[]>(chatHistory);
 
   const ws = useMemo(() => {
     const ws = new WebSocket(wsPath);
@@ -27,7 +26,7 @@ export function Chat({ wsPath }: { wsPath: string }) {
     };
 
     ws.onmessage = function (e: MessageEvent<string>) {
-      const json = JSON.parse(e.data) as MessageResponse;
+      const json = JSON.parse(e.data) as Message;
       setHistory((p) => {
         return [...p, json];
       });
